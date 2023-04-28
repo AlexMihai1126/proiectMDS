@@ -1,0 +1,11 @@
+@use '../../node_modules/bootstrap/scss/bootstrap.scss' with (
+    $primary: #03D4DB,
+    $secondary: #01595C,
+    $font-family-sans-serif: Oxygen,
+    $font-size-base:1rem,
+    $h1-font-size: 2rem,
+    $h2-font-size:1.75rem,
+    $h3-font-size: 1.2rem,
+    $border-radius:0.25rem,
+    $form-text-color: rgb(70, 70, 70)
+)
