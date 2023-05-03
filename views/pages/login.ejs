@@ -13,14 +13,20 @@
         <p><%= messages.succes %></p>
       </div>
     <% } %>
+
+    <% if(messages.error) { %>
+      <div class="alert alert-primary" role="alert">
+        <p><%= messages.error %></p>
+      </div>
+    <% } %>
     <form action="/utilizator/login" method="POST">
       <div class="mb-3">
         <label for="email" class="form-label">Adresa de e-mail</label>
-        <input type="email" class="form-control" id="email" name="email" required>
+        <input type="email" class="form-control" id="email" placeholder="email@test.ro" name="email" required>
       </div>
       <div class="mb-3">
         <label for="parola" class="form-label">Parola dvs.</label>
-        <input type="password" class="form-control" id="password" name="password" required>
+        <input type="password" class="form-control" id="password" placeholder="parola" name="parola" required>
       </div>
       <div class="btn-group" role="group" aria-label="Butoane login">
         <button type="submit" class="btn btn-outline-primary">Intra in cont</button>
