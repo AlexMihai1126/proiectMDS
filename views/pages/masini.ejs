@@ -7,8 +7,34 @@
     <%- include ("../fragments/head.ejs") %>
   </head>
   <body>
-    <<%- include ("../fragments/navbar.ejs") %>
-    <h1>Masini disponibile pe stoc</h1>
+    <%- include ("../fragments/navbar.ejs") %>
+    <h1 style="padding: 1rem;">Masini disponibile pe stoc</h1>
+    <div class="container">
+      <div class="row row-cols-3">
+        <% for (let masina of locals.masini) { %>
+          <div class="col-12 col-xl-3 col-lg-4 col-md-6" style="margin-bottom: 1rem;">
+            <div class="card">
+              <img src="/static/img/masini/<%- masina.imagine %>" class="card-img-top" alt="<%- masina.brand %>,<%- masina.model %>">
+              <div class="card-body">
+                <h5 class="card-title"><%- masina.brand %></h5>
+                <h6 class="card-subtitle mb-2 text-body-secondary"><%- masina.model %></h6> 
+                <p class="card-text">Descriere: <%- masina.descriere %></p>
+              </div>
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item">An fabricatie: <%- masina.an_fabricatie %></li>
+                <li class="list-group-item">Numar VIN: <%- masina.vin %></li>
+                <li class="list-group-item">Accident in istoric: <%- masina.accident %></li>
+                <li class="list-group-item">Km: <%- masina.km %></li>
+                <li class="list-group-item">Pret: <%- masina.pret %></li>
+              </ul>
+              <div class="card-body">
+                <a class="btn btn-primary" href="" role="button">Rezerva!</a>
+              </div>
+            </div>
+          </div>
+        <% } %>
+      </div>
+    </div>
   </body>
   <footer>
     <p>TODO - parte de admin (link disabled) - va fi grayed out daca contul nu este admin! Log in admin</p>

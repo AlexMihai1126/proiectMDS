@@ -45,11 +45,19 @@ app.get("/utilizator/login", function(req, res){
 });
 
 app.get(["/stoc","/masini"], function(req, res){
-    res.render("pages/masini");
+    client.query(
+        `SELECT m.brand, m.model, m.vin, m.pret, m.an_fabricatie, m.accident, m.km, m.descriere, m.imagine FROM masina m`, function(queryErr, queryRes){
+            if(queryErr){
+                throw queryErr;
+            }else{
+                //console.log(queryRes.rows);
+                res.render("pages/masini", {masini: queryRes.rows});
+            }
+        });
 });
 
 app.get("/utilizator/home", function(req, res){
-    res.render("pages/useracc",{user_email:"email"}); //todo
+    res.render("pages/useracc",{user_email:"email", role:"1"}); //todo
 });
 
 app.post("/utilizator/signup", async function(req, res){
@@ -104,7 +112,14 @@ app.post("/utilizator/login", passport.authenticate('local', {
     failureFlash: true
 })); //folosim libraria passport pentru a autentifica utilizatorul si crea cookie-ul
 
-// /utilizator/logout
+app.post("/utilizator/logout", function(req, res, next){
+    req.logout(function(err){
+        if(err){
+            return next(err);
+        }
+        res.redirect("/index");
+    });
+});
 
 app.listen(PORT, ()=>{
     console.log(`Serverul a pornit, port: ${PORT}`);
