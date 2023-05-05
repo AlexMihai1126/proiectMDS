@@ -125,7 +125,10 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
-proiectMDS_test.code-workspace
+
+
 /bkp
 compileScss.js
 query.txt
+proiectMDS.code-workspace
+/old_files
