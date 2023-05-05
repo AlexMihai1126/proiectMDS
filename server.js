@@ -35,16 +35,21 @@ app.get(["/","/home","/index"], function(req, res){
     res.render("pages/index");
 });
 
-app.get("/utilizator/login", function(req, res){
-    res.render("pages/login");
-});
-
 app.get("/utilizator/signup", function(req, res){
     res.render("pages/signup");
 });
 
+
+app.get("/utilizator/login", function(req, res){
+    res.render("pages/login");
+});
+
+app.get(["/stoc","/masini"], function(req, res){
+    res.render("pages/masini");
+});
+
 app.get("/utilizator/home", function(req, res){
-    res.render("pages/useracc",{user_email:"abc@def"});
+    res.render("pages/useracc",{user_email:"email"}); //todo
 });
 
 app.post("/utilizator/signup", async function(req, res){
