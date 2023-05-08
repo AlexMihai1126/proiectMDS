@@ -7,12 +7,14 @@
     <%- include ("../fragments/head.ejs") %>
   </head>
   <body>
-    <!-- <todo>include navbar</todo> -->
-    <h1>Date de utilizator</h1>
+    <%- include ("../fragments/navbar.ejs") %>
+    <form action="/utilizator/logout" method="post">
+      <button class="logout" type="submit">Sign out</button>
+    </form>
+    <a class="btn btn-primary" href="/utilizator/logout" role="button">Logout</a>
     <h1>Salut, <%=user_email%> </h1>
-    <a class="nav-link disabled" id="btn-logout" href="/utilizator/logout">Log out</a>
+    <hr>
+    <h1>Rezervarile mele</h1>
   </body>
-  <footer>
-    <p>TODO - parte de admin (link disabled) - va fi grayed out daca contul nu este admin! Log in admin</p>
-  </footer>
+  <%- include ("../fragments/footer.ejs") %>
 </html>
