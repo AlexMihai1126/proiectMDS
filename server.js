@@ -6,8 +6,20 @@ const session = require("express-session");
 const flash = require("express-flash");
 const passport = require("passport");
 const initPassport = require("./passportConfig");
+const sass = require('sass');
+const fs = require("fs");
+const path = require('path');
 
 initPassport(passport);
+
+globalObj={
+    brands: [],
+    kmMinMax: [],
+    pretMinMax:[],
+    folderScss: path.join(__dirname, "static/scss"),
+    folderCss: path.join(__dirname,"/static/css"),
+    folderBkp: path.join(__dirname,"bkp")
+}
 
 var client= new Client({database:"mds",
         user:"alexm1126",
@@ -18,9 +30,44 @@ client.connect();
 
 const PORT= process.env.PORT || 32767;
 
+client.query("select * from unnest(enum_range(null::brands))", function(err,rezBrand){
+    if(err){
+        console.log(err);
+    }
+    else{
+        globalObj.brands=rezBrand.rows;
+    }
+});
+
+client.query("select min(pret), max(pret) from masina", function(err,rezPret){
+    if(err){
+        console.log(err);
+    }
+    else{
+        globalObj.pretMinMax=rezPret.rows;
+    }
+});
+
+client.query("select min(km), max(km) from masina", function(err,rezKm){
+    if(err){
+        console.log(err);
+    }
+    else{
+        globalObj.kmMinMax=rezKm.rows;
+    }
+});
+
 app.set("view engine","ejs");
 
 app.use("/static", express.static(__dirname+"/static"));
+
+app.use("/masini", function(req, res, next){
+    res.locals.branduri=globalObj.brands;
+    res.locals.preturi_range=globalObj.pretMinMax;
+    res.locals.km_range=globalObj.kmMinMax;
+    next();
+});
+
 app.use(express.urlencoded({extended:false}));
 app.use(session({
     secret: 'secret', //cheie de criptre sesiune
@@ -35,29 +82,63 @@ app.get(["/","/home","/index"], function(req, res){
     res.render("pages/index");
 });
 
-app.get("/utilizator/signup", function(req, res){
+app.get("/utilizator/signup", isAuth, function(req, res){
     res.render("pages/signup");
 });
 
 
-app.get("/utilizator/login", function(req, res){
+app.get("/utilizator/login", isAuth, function(req, res){
     res.render("pages/login");
 });
 
 app.get(["/stoc","/masini"], function(req, res){
     client.query(
-        `SELECT m.brand, m.model, m.vin, m.pret, m.an_fabricatie, m.accident, m.km, m.descriere, m.imagine FROM masina m`, function(queryErr, queryRes){
+        `SELECT m.id_masina, m.brand, m.model, m.vin, m.pret, m.an_fabricatie, m.accident, m.km, m.descriere, m.imagine FROM masina m WHERE m.id_masina NOT IN (SELECT masina_id FROM rezervare)`, function(queryErr, queryRes){
             if(queryErr){
                 throw queryErr;
             }else{
                 //console.log(queryRes.rows);
-                res.render("pages/masini", {masini: queryRes.rows});
+                res.render("pages/masini", {masini: queryRes.rows, nr_rez:queryRes.rowCount});
             }
         });
 });
 
-app.get("/utilizator/home", function(req, res){
-    res.render("pages/useracc",{user_email:"email", role:"1"}); //todo
+app.get("/masini/rezerva/:id_masina", isNotAuth_rezervare,function(req, res){
+    client.query(`select * from masina where id_masina = ${req.params.id_masina} `, function (errSelect, rezSelect){
+        if(errSelect){
+            console.log(errSelect);
+        }else{
+            client.query(`insert into rezervare(user_id,masina_id,data) values (${req.user.id},${req.params.id_masina},${new Date().getTime()})`, function(err_ins, rez_ins){
+                if(err_ins){
+                    console.log(err_ins);
+                    res.render("pages/eroare",{err:"A aparut o eroare in rezervarea masinii!"});
+                }else{
+                    res.render("pages/confirmare", {masina:rezSelect.rows[0]});
+                }
+        });
+    }});
+}); 
+
+app.get("/utilizator/home", isNotAuth, function(req, res){
+    res.render("pages/useracc",{user_email:req.user.email, role:req.user.rol, user_nume:req.user.nume});
+});
+
+app.get("/utilizator/logout", function(req, res,next){
+    req.logOut(function(err){
+        if(err){
+            return next(err);
+        }
+        req.flash('succes',"Te-ai delogat de pe site.");
+        res.redirect("/utilizator/login");
+    });
+});
+
+app.get("/eroare", function(req, res){
+    res.render("pages/eroare",{err:"A aparut o eroare"});
+});
+
+app.get("/authErr", function(req, res){
+    res.render("pages/eroare",{err:"Nu esti logat pe site, nu poti rezerva o masina."});
 });
 
 app.post("/utilizator/signup", async function(req, res){
@@ -112,14 +193,84 @@ app.post("/utilizator/login", passport.authenticate('local', {
     failureFlash: true
 })); //folosim libraria passport pentru a autentifica utilizatorul si crea cookie-ul
 
-app.post("/utilizator/logout", function(req, res, next){
-    req.logout(function(err){
-        if(err){
-            return next(err);
+function isAuth(req, res, next){
+    if(req.isAuthenticated()){
+        return res.redirect("/utilizator/home");
+    }
+    next();   
+}
+
+function isNotAuth(req, res, next){
+    if(req.isAuthenticated()){
+        return next();
+    }
+    res.redirect("/utilizator/login");
+}
+
+function isNotAuth_rezervare(req, res, next){
+    if(req.isAuthenticated()){
+        return next();
+    }
+    res.redirect("/authErr");
+}
+
+var fileNameTS=null;
+function getCurrentDate(){
+    var time = new Date().getTime();
+    var date = new Date(time);
+    var timeStampVector= date.toString().split(" ");
+    var dateTimeSec=timeStampVector[4].split(":");
+    return fileNameTS="_"+ timeStampVector[1] + "_"+ timeStampVector[2] + "_" + timeStampVector[3] + "_" + dateTimeSec[0] + "_" + dateTimeSec[1] + "_" + dateTimeSec[2];
+}
+
+getCurrentDate();
+
+function compileScss(pathScss, reason, pathCss){
+    if(!pathCss){
+        let extPathScss= path.basename(pathScss); //luam numele fisierului in var separata
+        let currentFileScss=extPathScss.split(".")[0]; //luam numele fisierului fara extensie pt a crea cel cu .css
+        pathCss=currentFileScss+".css"; //adaugam extensia .css la fisier
+    }
+    
+    if (!path.isAbsolute(pathScss)){
+        pathScss=path.join(globalObj.folderScss,pathScss);
+    }
+
+    if (!path.isAbsolute(pathCss)){
+        pathCss=path.join(globalObj.folderCss,pathCss);
+    } // la acest punct avem cai absolute in pathScss si pathCss
+    let currentFileCss=path.basename(pathCss);
+
+    if(fs.existsSync(pathCss)){
+        let pathBkp = path.parse(pathCss).name + fileNameTS + "_" + reason + ".css";
+        fs.copyFileSync(pathCss, path.join(globalObj.folderBkp,pathBkp));
+        console.log("Creare fisier backup in folderul",globalObj.folderBkp,"fisierul",pathBkp);
+    }
+
+    rez=sass.compile(pathScss,{"sourceMap":true});
+    fs.writeFileSync(pathCss,rez.css);
+    console.log("Fisierul SCSS",pathScss,"a fost compilat in",pathCss);
+} 
+
+scssFiles=fs.readdirSync(globalObj.folderScss);
+for(let fileName of scssFiles){
+    if(path.extname(fileName)==".scss"){
+        compileScss(fileName,"startup");
+    }
+}
+
+var timedOut;
+fs.watch(globalObj.folderScss, function(changeAction, fileNameChanged){ //verifica actiunea care s-a intamplat pe un anumit fisier
+    if(changeAction=="change" || changeAction=="rename"){
+        let updatedFilePath=path.join(globalObj.folderScss, fileNameChanged);
+        if(fs.existsSync(updatedFilePath) && !timedOut){
+            console.log(changeAction,fileNameChanged);
+            timedOut = setTimeout(function() { timedOut=null }, 5000); //blochez recompilarea pt 5 secunde, bug din fs.watch() care inregistreaza mai multe evenimente per schimbare
+            getCurrentDate();
+            compileScss(updatedFilePath,"fileupdate");
         }
-        res.redirect("/index");
-    });
-});
+    }
+})
 
 app.listen(PORT, ()=>{
     console.log(`Serverul a pornit, port: ${PORT}`);

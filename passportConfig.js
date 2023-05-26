@@ -25,11 +25,11 @@ const authUser = function(email, parola, done){
                         if(isMatch){
                             return done(null, user); //stocheaza utilizatorul in session cookie
                         }else{
-                            return done(null, false, {mesaj:"Parolele nu se potrivesc."}); //nu autentificam utilizatorul daca nu se potrivesc parolele
+                            return done(null, false, {message:"Parolele nu se potrivesc."}); //nu autentificam utilizatorul daca nu se potrivesc parolele
                         }
                     })
                 }else{
-                    return done(null, false, {mesaj:"Email-ul nu exista."});
+                    return done(null, false, {message:"Email-ul nu exista."});
                 }
             }
         }

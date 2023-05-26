@@ -16,14 +16,22 @@
     "start": "node server.js",
     "dev": "nodemon server.js"
   },
-  "name": "proiectmds_test",
+  "name": "proiectmds",
   "version": "1.0.0",
   "main": "server.js",
   "keywords": [],
-  "author": "",
+  "author": "Mihai Alexandru",
   "license": "ISC",
-  "description": "",
+  "description": "Proiect metode de dezvoltare software, anul 2 semestrul 2. Implementarea de baza a unui dealership auto",
   "devDependencies": {
     "nodemon": "^2.0.22"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AlexMihai1126/proiectMDS.git"
+  },
+  "bugs": {
+    "url": "https://github.com/AlexMihai1126/proiectMDS/issues"
+  },
+  "homepage": "https://github.com/AlexMihai1126/proiectMDS#readme"
 }
