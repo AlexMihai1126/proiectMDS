@@ -1,20 +1,23 @@
 <!doctype html>
 <html lang="ro">
   <head>
-    <title>Contul meu</title>
+    <p style="display: none;"><%-role%></p>
+    <title>Contul meu | Elite Motors</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <%- include ("../fragments/head.ejs") %>
   </head>
   <body>
     <%- include ("../fragments/navbar.ejs") %>
-    <form action="/utilizator/logout" method="post">
-      <button class="logout" type="submit">Sign out</button>
-    </form>
-    <a class="btn btn-primary" href="/utilizator/logout" role="button">Logout</a>
-    <h1>Salut, <%=user_email%> </h1>
-    <hr>
-    <h1>Rezervarile mele</h1>
+    <main>
+      <h1>Salut, <b><%=user_nume%></b></h1>
+      <h3>Email: <%=user_email%></h3>
+      <div class="row">
+        <a class="btn btn-primary" href="/utilizator/logout" role="button">Logout</a>
+      </div>
+      <hr>
+      <h1>Rezervarile mele</h1>
+    </main>
   </body>
   <%- include ("../fragments/footer.ejs") %>
 </html>
