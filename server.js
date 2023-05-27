@@ -120,8 +120,22 @@ app.get("/masini/rezerva/:id_masina", isNotAuth_rezervare,function(req, res){
 }); 
 
 app.get("/utilizator/home", isNotAuth, function(req, res){
-    res.render("pages/useracc",{user_email:req.user.email, role:req.user.rol, user_nume:req.user.nume});
+    if(req.user.rol==1){
+        res.redirect("/admin/home");
+    }else{
+        res.render("pages/useracc",{user_email:req.user.email, user_nume:req.user.nume});
+    }
+    
 });
+
+app.get("/admin/home", isNotAuth, function(req, res){
+    if(req.user.rol==1){
+        res.render("pages/admin", {admin_email:req.user.email});
+    }else{
+        res.redirect("/utilizator/home");
+    }
+})
+
 
 app.get("/utilizator/logout", function(req, res,next){
     req.logOut(function(err){
@@ -192,6 +206,7 @@ app.post("/utilizator/login", passport.authenticate('local', {
     failureRedirect: '/utilizator/login',
     failureFlash: true
 })); //folosim libraria passport pentru a autentifica utilizatorul si crea cookie-ul
+
 
 function isAuth(req, res, next){
     if(req.isAuthenticated()){
