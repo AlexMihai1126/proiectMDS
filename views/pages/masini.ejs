@@ -47,11 +47,11 @@
       <div class="row row-cols-3">
         <% for (let masina of locals.masini) { %>
           <div class="col-12 col-xl-3 col-lg-4 col-md-6 masini" style="margin-bottom: 1rem;" id="card_id_<%-masina.id_masina%>">
-            <div class="card">
-              <img src="/static/img/masini/<%- masina.imagine %>" class="card-img-top img-fluid" alt="<%- masina.brand %>,<%- masina.model %>">
+            <div class="card" style="border-radius: 0.7rem;">
+              <img src="/static/img/masini/<%- masina.imagine %>"  style="border-top-right-radius: 0.7rem; border-top-left-radius: 0.7rem ;" class="card-img-top img-fluid" alt="<%- masina.brand %>,<%- masina.model %>">
               <div class="card-body">
-                <h5 class="card-title val_brand"><%- masina.brand %></h5>
-                <h6 class="card-subtitle mb-2 text-body-secondary"><%- masina.model %></h6> 
+                <h3 class="card-title val_brand"><%- masina.brand %></h5>
+                <h4 class="card-subtitle mb-2 text-body-secondary"><%- masina.model %></h6> 
                 <p class="card-text">Descriere: <%- masina.descriere %></p>
               </div>
               <ul class="list-group list-group-flush">
