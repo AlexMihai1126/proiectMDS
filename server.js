@@ -108,16 +108,20 @@ app.get("/masini/rezerva/:id_masina", isNotAuth_rezervare,function(req, res){
         if(errSelect){
             console.log(errSelect);
         }else{
-            client.query(`insert into rezervare(user_id,masina_id,data) values (${req.user.id},${req.params.id_masina},${new Date().getTime()})`, function(err_ins, rez_ins){
-                if(err_ins){
-                    console.log(err_ins);
-                    res.render("pages/eroare",{err:"A aparut o eroare in rezervarea masinii!"});
-                }else{
-                    res.render("pages/confirmare", {masina:rezSelect.rows[0]});
-                }
-        });
-    }});
-}); 
+            if(rezSelect.rowCount==0){
+                res.render("pages/eroare",{err:"Masina nu exista!!!"});
+            }else{
+                client.query(`insert into rezervare(user_id,masina_id,data) values (${req.user.id},${req.params.id_masina},${new Date().getTime()})`, function(err_ins, rez_ins){
+                    if(err_ins){
+                        console.log(err_ins);
+                        res.render("pages/eroare",{err:"A aparut o eroare in rezervarea masinii!"});
+                    }else{
+                        res.render("pages/confirmare", {masina:rezSelect.rows[0]});
+                    }
+            })}
+            
+        }});
+});
 
 app.get("/utilizator/home", isNotAuth, function(req, res){
     if(req.user.rol==1){
