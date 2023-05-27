@@ -123,14 +123,29 @@ app.get("/utilizator/home", isNotAuth, function(req, res){
     if(req.user.rol==1){
         res.redirect("/admin/home");
     }else{
-        res.render("pages/useracc",{user_email:req.user.email, user_nume:req.user.nume});
-    }
+        client.query(`SELECT m.id_masina, m.brand, m.model, r.data, m.vin FROM masina m JOIN rezervare r on (m.id_masina=r.masina_id) WHERE r.user_id=${req.user.id}`, function(err, rez){
+            if(err){
+                console.log(err);
+            }
+            res.render("pages/useracc",{user_email:req.user.email, user_nume:req.user.nume, rezervari:rez.rows, nr_rez: rez.rowCount});
+        });
+    };
     
 });
 
 app.get("/admin/home", isNotAuth, function(req, res){
     if(req.user.rol==1){
-        res.render("pages/admin", {admin_email:req.user.email});
+        client.query(`SELECT id_masina, brand, model, vin FROM masina`, function (errMasina, rezMasina){
+            if(errMasina){
+                console.log(errMasina);
+            }
+            client.query(`SELECT m.id_masina, m.brand, m.model, m.vin, r.data, u.email FROM masina m JOIN rezervare r on (m.id_masina=r.masina_id) JOIN utilizatori u on (u.id = r.user_id)`, function(errRez, queryRez){
+                if(errRez){
+                    console.log(errRez);
+                }
+                res.render("pages/admin", {admin_email:req.user.email, rezervari:queryRez.rows, masini:rezMasina.rows, nr_rez:queryRez.rowCount, nr_m:rezMasina.rowCount});
+            })
+        })
     }else{
         res.redirect("/utilizator/home");
     }
@@ -206,6 +221,29 @@ app.post("/utilizator/login", passport.authenticate('local', {
     failureRedirect: '/utilizator/login',
     failureFlash: true
 })); //folosim libraria passport pentru a autentifica utilizatorul si crea cookie-ul
+
+app.post("/stergeRezervare/:id_masina", isNotAuth, function(req, res){
+    client.query(`DELETE FROM rezervare where masina_id=${req.params.id_masina}`, function(err,rez){
+        if(err){
+            console.log(err);
+        }
+        res.redirect("/utilizator/home");
+    });
+});
+
+app.post("/stergeMasina/:id_masina", isNotAuth, function(req, res){
+    if(req.user.rol==1){
+        client.query(`DELETE FROM masina where id_masina=${req.params.id_masina}`, function(err,rez){
+            if(err){
+                console.log(err);
+            }
+            res.redirect("/admin/home");
+        });
+    }else{
+        res.redirect("/utilizator/home");
+    }
+    
+});
 
 
 function isAuth(req, res, next){
