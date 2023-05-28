@@ -85,7 +85,7 @@ app.get(["/","/home","/index"], function(req, res){
             console.log(err);
         }else{
             if(resId.rowCount<3){
-                res.render("pages/index",{masini_afis:"A aparut o eroare la afisare!"});
+                res.render("pages/index",{nr_rez:0});
             }else{
                 let ids=resId.rows;
                 let random_ids=[];

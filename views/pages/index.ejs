@@ -62,9 +62,10 @@
       <div class="container">
         <div class="row">
           <h1 class="text-center my-2">Ofertele zilei</h1>
-          <div class="container">
+          <div class="container" id="oferte">
             <div class="row row-cols-3">
-              <% for (let masina of locals.masini_afis) { %>
+              <% if(locals.nr_rez!=0) {
+                for (let masina of locals.masini_afis) { %>
                 <div class="col-12 col-xl-4 col-lg-4 col-md-6 masini" style="margin-bottom: 1rem;" id="card_id_<%-masina.id_masina%>">
                   <div class="card" style="border-radius: 0.7rem;">
                     <img src="/static/img/masini/<%- masina.imagine %>"  style="border-top-right-radius: 0.7rem; border-top-left-radius: 0.7rem ;" class="card-img-top img-fluid" alt="<%- masina.brand %>,<%- masina.model %>">
@@ -82,6 +83,8 @@
                     </div>
                   </div>
                 </div>
+              <% }}else{ %>
+                <div id="eroarePlaceholderRez"><div class="alert alert-primary" role="alert">A aparut o eroare la afisarea ofertelor!</div></div>
               <% } %>
             </div>
           </div>
