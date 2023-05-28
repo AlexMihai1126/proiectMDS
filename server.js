@@ -68,6 +68,7 @@ app.use("/masini", function(req, res, next){
     next();
 });
 
+
 app.use(express.urlencoded({extended:false}));
 app.use(session({
     secret: 'secret', //cheie de criptre sesiune
@@ -79,8 +80,38 @@ app.use(passport.session());
 app.use(flash());
 
 app.get(["/","/home","/index"], function(req, res){
-    res.render("pages/index");
-});
+    client.query(`SELECT id_masina FROM masina WHERE id_masina NOT IN (SELECT masina_id FROM rezervare)`, function(err, resId){
+        if(err){
+            console.log(err);
+        }else{
+            if(resId.rowCount<3){
+                res.render("pages/index",{masini_afis:"A aparut o eroare la afisare!"});
+            }else{
+                let ids=resId.rows;
+                let random_ids=[];
+                let random_ids_q=[];
+                i = ids.length,
+                j = 0;
+                while (i--) {
+                    j = Math.floor(Math.random() * (i+1));
+                    random_ids.push(ids[j]);
+                    ids.splice(j,1);
+                }
+                let l_div = random_ids.length - random_ids.length%3;
+                for(let i=0;i<l_div;i++){
+                    random_ids_q.push(parseInt(random_ids[i].id_masina));
+                }
+                client.query(`SELECT id_masina, brand, model, pret, imagine FROM masina WHERE id_masina IN (${random_ids_q})`, function(errQ, resQ){
+                    if(errQ){
+                        console.log(errQ);
+                    }else{
+                        res.render("pages/index",{masini_afis:resQ.rows})
+                    }
+                }
+        
+    )}
+        }});
+})
 
 app.get("/utilizator/signup", isAuth, function(req, res){
     res.render("pages/signup");
@@ -122,6 +153,19 @@ app.get("/masini/rezerva/:id_masina", isNotAuth_rezervare,function(req, res){
             
         }});
 });
+
+app.get("/masini/detalii/:id_masina",function(req, res){
+    client.query(`select * from masina where id_masina = ${req.params.id_masina} `, function (errSelect, rezSelect){
+        if(errSelect){
+            console.log(errSelect);
+        }else{
+            if(rezSelect.rowCount==0){
+                res.render("pages/eroare",{err:"Masina nu exista!!!"});
+            }else{
+                res.render("pages/detalii", {masina:rezSelect.rows[0]});
+            }}
+        })}
+);
 
 app.get("/utilizator/home", isNotAuth, function(req, res){
     if(req.user.rol==1){
