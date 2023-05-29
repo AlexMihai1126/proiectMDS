@@ -63,7 +63,10 @@
               </ul>
               <div class="card-body">
                 <div class="d-grid gap-2">
-                  <a class="btn btn-primary" href="/masini/rezerva/<%-masina.id_masina%>" role="button">Rezerva</a>
+                  <div class="btn-group" role="group" aria-label="">
+                    <a class="btn btn-primary" href="/masini/detalii/<%-masina.id_masina%>" role="button">Detalii</a>
+                    <a class="btn btn-secondary" href="/masini/rezerva/<%-masina.id_masina%>" role="button">Rezerva</a>
+                  </div>
                 </div>
               </div>
             </div>

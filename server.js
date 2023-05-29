@@ -97,8 +97,7 @@ app.get(["/","/home","/index"], function(req, res){
                     random_ids.push(ids[j]);
                     ids.splice(j,1);
                 }
-                let l_div = random_ids.length - random_ids.length%3;
-                for(let i=0;i<l_div;i++){
+                for(let i=0;i<=2;i++){
                     random_ids_q.push(parseInt(random_ids[i].id_masina));
                 }
                 client.query(`SELECT id_masina, brand, model, pret, imagine FROM masina WHERE id_masina IN (${random_ids_q})`, function(errQ, resQ){
